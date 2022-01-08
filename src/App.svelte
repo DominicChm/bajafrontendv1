@@ -112,9 +112,9 @@
                         <td>
                             <button on:click={() => initRun(run.uuid)}>Init Storage</button>
                         </td>
-                    {:else}
+                    {:else if (run.type === "stored")}
                         <td>{run.locked}</td>
-                        <td>0</td>
+                        <td>{run.size}</td>
                         <td>
                             <button on:click={() => deleteRun(run.uuid)}>Delete</button>
                             {#if (run.locked)}
