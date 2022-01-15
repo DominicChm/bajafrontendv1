@@ -6,18 +6,16 @@
     import Toast from "./notifications/Toast.svelte";
 
     let count: number = 0
+    let state = {
+        runs: []
+    };
     const sio = io("http://localhost:3000");
 
-    let runs = [];
-    sio.on("runs_list", (_runs) => {
-        console.log(_runs);
-        runs = _runs
+    sio.on("client_state", (s) => {
+        state = s;
+        console.log(s);
     });
 
-    let capabilities = [];
-    sio.on("capabilities", (caps) => capabilities = caps);
-
-    let serverErr = "";
     sio.on("general_error", (e) => notifications.danger(e, 2000));
 
     function initRun(uuid) {
@@ -30,6 +28,14 @@
 
     function deleteRun(uuid) {
         sio.emit("run_delete", uuid);
+    }
+
+    function activateRun(uuid) {
+        sio.emit("activate_run", uuid)
+    }
+
+    function deactivateRun() {
+        sio.emit("deactivate_run");
     }
 
 </script>
@@ -66,6 +72,10 @@
         background: #D0E4F5;
     }
 
+    .activated-run {
+        background: #7ce089 !important;
+    }
+
     table thead {
         background: #1C6EA4;
         background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
@@ -87,11 +97,11 @@
 </style>
 
 <div class="App">
-    <p>Error: {serverErr}</p>
     <TitledContainer title="Capabilities">
-        <p>{JSON.stringify(capabilities, null, 3)}</p>
+        <p>{JSON.stringify(state.capabilities, null, 3)}</p>
     </TitledContainer>
     <TitledContainer title="Runs">
+        <p>Active: {state.activeRun} <button on:click={() => deactivateRun()}>Deactivate</button></p>
         <table>
             <thead>
             <tr>
@@ -100,10 +110,11 @@
                 <th>Locked</th>
                 <th>Size</th>
                 <th>Actions</th>
+                <th>Activate</th>
             </tr>
             </thead>
-            {#each runs as run}
-                <tr>
+            {#each state.runs as run}
+                <tr class:activated-run={state.activeRun === run.uuid}>
                     <td>{run.uuid}</td>
                     <td>{run.type}</td>
                     {#if (run.type === "realtime")}
@@ -122,6 +133,9 @@
                             {/if}
                         </td>
                     {/if}
+                    <td>
+                        <button on:click={() => activateRun(run.uuid)}>Activate</button>
+                    </td>
                 </tr>
             {/each}
         </table>
