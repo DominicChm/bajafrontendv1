@@ -4,10 +4,15 @@
     import TitledContainer from "./TitledContainer.svelte";
     import {notifications} from './notifications/notifications.js'
     import Toast from "./notifications/Toast.svelte";
+    import ModuleDefinitionEditor from "./ModuleDefinitionEditor.svelte";
+    import Editor from "./Editor.svelte";
+
     let count: number = 0
+
     let state = {
         runs: []
     };
+
     const sio = io("http://localhost:3000");
 
     sio.on("client_state", (s) => {
@@ -38,7 +43,7 @@
     }
 
     function createModule() {
-        sio.emit("create_module", "brake_pressure", "test");
+        sio.emit("create_module", "brake_pressure", "AA:BB:CC:DD:EE:FF");
     }
 
 </script>
@@ -104,7 +109,9 @@
         <p>{JSON.stringify(state.capabilities, null, 3)}</p>
     </TitledContainer>
     <TitledContainer title="Runs">
-        <p>Active: {state.activeRun} <button on:click={() => deactivateRun()}>Deactivate</button></p>
+        <p>Active: {state.activeRun}
+            <button on:click={() => deactivateRun()}>Deactivate</button>
+        </p>
         <table>
             <thead>
             <tr>
@@ -143,6 +150,7 @@
             {/each}
         </table>
     </TitledContainer>
+    <Editor sio={sio}/>
     <TitledContainer title="Schema">
         <pre class="json-render">{JSON.stringify(state.schema, null, 2)}</pre>
         <button on:click={createModule}>Add Module</button>
