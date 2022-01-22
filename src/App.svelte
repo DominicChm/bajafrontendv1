@@ -4,7 +4,6 @@
     import TitledContainer from "./TitledContainer.svelte";
     import {notifications} from './notifications/notifications.js'
     import Toast from "./notifications/Toast.svelte";
-
     let count: number = 0
     let state = {
         runs: []
@@ -36,6 +35,10 @@
 
     function deactivateRun() {
         sio.emit("deactivate_run");
+    }
+
+    function createModule() {
+        sio.emit("create_module", "brake_pressure", "test");
     }
 
 </script>
@@ -140,5 +143,11 @@
             {/each}
         </table>
     </TitledContainer>
+    <TitledContainer title="Schema">
+        <pre class="json-render">{JSON.stringify(state.schema, null, 2)}</pre>
+        <button on:click={createModule}>Add Module</button>
+    </TitledContainer>
+    <meter value="50" max="100" min="0" low="25" high="75" optimum="50"></meter>
+    <progress value="50" max="100"></progress>
     <Toast/>
 </div>
