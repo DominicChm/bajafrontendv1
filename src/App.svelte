@@ -162,6 +162,7 @@
         {/if}
         <button on:click={handlePlay}>Play</button>
     </TitledContainer>
+    <button on:click={createModule}>Add Module</button>
     <Editor sio={sio}/>
     <TitledContainer title="Schema">
         <pre>{JSON.stringify(state.schema, null, 2)}</pre>
