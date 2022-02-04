@@ -22,6 +22,11 @@
             <td><input bind:value={definition.name}></td>
         </tr>
         <tr>
+            <td>type</td>
+            <td>{definition.type}</td>
+            <td><input bind:value={definition.type}></td>
+        </tr>
+        <tr>
             <td>id</td>
             <td>{definition.id}</td>
             <td><input bind:value={definition.id}></td>

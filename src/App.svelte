@@ -19,8 +19,10 @@
         state = s;
         console.log(s);
     });
-
     sio.on("general_error", (e) => notifications.danger(e, 2000));
+
+    let data = {}
+    sio.on("data", (d) => data = d);
 
     function initRun(uuid) {
         sio.emit("run_init", uuid);
@@ -46,6 +48,10 @@
         sio.emit("create_module", "brake_pressure", "AA:BB:CC:DD:EE:FF");
     }
 
+    function handlePlay() {
+        data = {};
+        sio.emit("req_play", {});
+    }
 </script>
 
 <style>
@@ -150,9 +156,15 @@
             {/each}
         </table>
     </TitledContainer>
+    <TitledContainer title="Data">
+        {#if (state.playing)}
+            <pre>{JSON.stringify(data, null, 2)}</pre>
+        {/if}
+        <button on:click={handlePlay}>Play</button>
+    </TitledContainer>
     <Editor sio={sio}/>
     <TitledContainer title="Schema">
-        <pre class="json-render">{JSON.stringify(state.schema, null, 2)}</pre>
+        <pre>{JSON.stringify(state.schema, null, 2)}</pre>
         <button on:click={createModule}>Add Module</button>
     </TitledContainer>
     <meter value="50" max="100" min="0" low="25" high="75" optimum="50"></meter>
