@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@types/socket.io": "^3.0.2",
+    "canvas-gauges": "^2.1.7",
     "socket.io": "^4.4.0",
     "socket.io-client": "^4.4.0",
     "svelte": "^3.37.0"

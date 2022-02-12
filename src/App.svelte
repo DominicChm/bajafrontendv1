@@ -4,8 +4,8 @@
     import TitledContainer from "./TitledContainer.svelte";
     import {notifications} from './notifications/notifications.js'
     import Toast from "./notifications/Toast.svelte";
-    import ModuleDefinitionEditor from "./ModuleDefinitionEditor.svelte";
     import Editor from "./Editor.svelte";
+    import DataView from "./DataView.svelte";
 
     let count: number = 0
 
@@ -22,7 +22,15 @@
     sio.on("general_error", (e) => notifications.danger(e, 2000));
 
     let data = {}
-    sio.on("data", (d) => data = d);
+    let frameIndColor = "#000";
+    sio.on("data", (d) => {
+        data = d;
+        //console.log(data);
+        frameIndColor = "#080"
+        setTimeout(() => { //Heartbeat for data
+            frameIndColor = "#000"
+        }, 50);
+    });
 
     function initRun(uuid) {
         sio.emit("run_init", uuid);
@@ -50,7 +58,11 @@
 
     function handlePlay() {
         data = {};
-        sio.emit("req_play", {});
+        sio.emit("play_start");
+    }
+
+    function handleStopPlay() {
+        sio.emit("play_stop");
     }
 </script>
 
@@ -157,10 +169,13 @@
         </table>
     </TitledContainer>
     <TitledContainer title="Data">
-        {#if (state.playing)}
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+        <div style="background: {frameIndColor}; width: 10px; height: 10px; border: 1px solid black; margin: 8px"></div>
+        <DataView schema={state.schema} data={data}/>
+        {#if (state.playState?.playing)}
+            <button on:click={handleStopPlay}>Stop Playing</button>
+        {:else }
+            <button on:click={handlePlay}>Play</button>
         {/if}
-        <button on:click={handlePlay}>Play</button>
     </TitledContainer>
     <button on:click={createModule}>Add Module</button>
     <Editor sio={sio}/>
