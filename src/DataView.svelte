@@ -20,6 +20,7 @@
 </script>
 
 <div>
+
     {#each components as comp}
         <svelte:component this={comp.component} data={data} uuid={comp.uuid}/>
     {/each}

@@ -6,6 +6,7 @@
     import Toast from "./notifications/Toast.svelte";
     import Editor from "./Editor.svelte";
     import DataView from "./DataView.svelte";
+    import PlayControls from "./PlayControls.svelte";
 
     let count: number = 0
 
@@ -120,11 +121,22 @@
     table thead th:first-child {
         border-left: none;
     }
+
+    .vert-div {
+        width: 1px;
+        margin: 3px 0;
+        display: inline-block;
+        background: black;
+        height: 100%;
+    }
 </style>
 
 <div class="App">
     <TitledContainer title="Capabilities">
         <p>{JSON.stringify(state.capabilities, null, 3)}</p>
+    </TitledContainer>
+    <TitledContainer title="playControls">
+        <PlayControls sio={sio}/>
     </TitledContainer>
     <TitledContainer title="Runs">
         <p>Active: {state.activeRun}
