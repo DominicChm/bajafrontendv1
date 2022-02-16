@@ -1,12 +1,12 @@
 <script>
     export let sio;
 
-    let playState = {};
-    sio.on("client_state", s => playState = s.playState);
+    let seekTime = 0;
+    let frameRate = 0;
 
-    function handlePlay() {
-        sio.emit("play_start");
-    }
+    let playState = {};
+    sio.on("play_state", p => playState = p);
+
 </script>
 
 <style>
@@ -24,12 +24,21 @@
     <table>
         <tr>
             <td>
-                <button on:click={handlePlay}>Play/Stop</button>
+                {#if (playState?.playing)}
+                    <button on:click={() => sio.emit("play_stop")}>Stop</button>
+                {:else}
+                    <button on:click={() => sio.emit("play_start")}>Play</button>
+                {/if}
             </td>
             <td>
-                Current: {(playState.position ?? 0).toString().padStart(7, '0')}
-                <input type="number">
-                <button>Seek</button>
+                Current: {(playState?.time ?? 0).toString().padStart(7, '0')}
+                <input bind:value={seekTime} type="number">
+                <button on:click={() => sio.emit("play_seek", seekTime)}>Seek</button>
+            </td>
+            <td>
+                Framerate: {(playState?.framerate ?? 0).toString()}
+                <input bind:value={frameRate} type="number">
+                <button on:click={() => sio.emit("play_framerate", frameRate)}>Set</button>
             </td>
         </tr>
 

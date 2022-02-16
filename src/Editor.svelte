@@ -3,14 +3,14 @@
     import ModuleDefinitionEditor from "./ModuleDefinitionEditor.svelte";
 
     export let sio;
-    let state = {};
+    let schema = undefined;
 
-    sio.on("client_state", (s) => {
-        state = s;
+    sio.on("schema", (s) => {
+        schema = s;
     });
 
     function pushStateUpdate() {
-        sio.emit("schema_update", state.schema);
+        sio.emit("schema_update", schema);
     }
 
 </script>
@@ -18,7 +18,7 @@
 <TitledContainer title="Configure">
     <button on:click={pushStateUpdate}>Push Updates</button>
     <TitledContainer title="GENERAL SCHEMA">
-        {#if (state.schema)}
+        {#if (schema)}
             <table>
                 <thead>
                 <tr>
@@ -30,13 +30,13 @@
                 <tbody>
                 <tr>
                     <td>name</td>
-                    <td>{state?.schema.name}</td>
-                    <td><input bind:value={state.schema.name}></td>
+                    <td>{schema.name}</td>
+                    <td><input bind:value={schema.name}></td>
                 </tr>
                 <tr>
                     <td>Frame Interval</td>
-                    <td>{state?.schema.frameInterval}</td>
-                    <td><input type="number" bind:value={state.schema.frameInterval}></td>
+                    <td>{schema.frameInterval}</td>
+                    <td><input type="number" bind:value={schema.frameInterval}></td>
                 </tr>
                 </tbody>
             </table>
@@ -44,7 +44,7 @@
             <p>No schema present...</p>
         {/if}
     </TitledContainer>
-    {#each state?.schema?.modules ?? [] as moduleDef}
+    {#each schema?.modules ?? [] as moduleDef}
         <ModuleDefinitionEditor definition={moduleDef}/>
     {:else }
         <p>No modules!</p>
