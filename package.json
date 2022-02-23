@@ -9,6 +9,7 @@
   "dependencies": {
     "@types/socket.io": "^3.0.2",
     "canvas-gauges": "^2.1.7",
+    "carbon-icons-svelte": "^10.44.4",
     "socket.io": "^4.4.0",
     "socket.io-client": "^4.4.0",
     "svelte": "^3.37.0"
@@ -24,8 +25,10 @@
     "@types/mocha": "^8.2.2",
     "@types/snowpack-env": "^2.3.3",
     "@web/test-runner": "^0.13.3",
+    "carbon-components-svelte": "^0.59.0",
     "chai": "^4.3.4",
     "snowpack": "^3.8.8",
+    "svelte-loading-spinners": "^0.1.7",
     "svelte-preprocess": "^4.7.2",
     "typescript": "^4.3.4"
   }
