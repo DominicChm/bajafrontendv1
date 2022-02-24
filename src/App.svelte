@@ -1,7 +1,7 @@
 <script lang="ts">
-    import "carbon-components-svelte/css/g10.css";
+    import "carbon-components-svelte/css/all.css";
     import {
-        ComboBox,
+        ComboBox, Content,
         Header,
         HeaderUtilities,
         SideNav,
@@ -14,14 +14,18 @@
     import Archive16 from "carbon-icons-svelte/lib/Archive16";
 
     import {sio} from "./stores";
-    import RunSelector from "./RunSelector.svelte";
     import DAQConnectionStatus from "./Icons/DAQConnectionStatus.svelte";
+    import RunPage from "./RunPage.svelte";
 
     enum test {
         overview,
         runs,
         dashboard,
         schema
+    }
+
+    const pages = {
+        [test.runs]: RunPage
     }
 
     let isSideNavOpen = false;
@@ -62,49 +66,43 @@
     </svelte:fragment>
 
     <HeaderUtilities>
-        <DAQConnectionStatus />
+        <DAQConnectionStatus/>
     </HeaderUtilities>
-
-    <SideNav bind:isOpen={isSideNavOpen}>
-        <ComboBox
-                placeholder="Select run"
-                items={[
-    { id: "0", text: "Hollister 1 asdasdafsb jkghbdfiujghjdoihngrdikujhngrduijhbngurjdifhburdgjish" },
-    { id: "1", text: "Email" },
-    { id: "2", text: "Fax" },
-  ]}
-        />
-
-
-        <SideNavItems>
-            <SideNavLink icon={Fade16} text="Overview" href="javascript:void(0)"
-                         on:click={() => selectedPage = test.overview }
-                         isSelected={selectedPage===test.overview}/>
-
-            <SideNavLink icon={Fade16} text="Dashboard" href="javascript:void(0)"
-                         on:click={() => selectedPage = test.dashboard }
-                         isSelected={selectedPage===test.dashboard}/>
-
-            <SideNavLink icon={Fade16} text="Schema" href="javascript:void(0)"
-                         on:click={() => selectedPage = test.schema }
-                         isSelected={selectedPage===test.schema}/>
-
-            <SideNavLink icon={Fade16} text="Link 4" href="javascript:void(0)"
-                         on:click={() => selectedPage = test.runs }
-                         isSelected={selectedPage===test.runs}/>
-
-            <SideNavDivider/>
-            <SideNavLink icon={Archive16}
-                         text="Runs"
-                         href="javascript:void(0)"
-                         on:click={() => selectedPage = test.runs }
-                         isSelected={selectedPage===test.runs}/>
-        </SideNavItems>
-    </SideNav>
 </Header>
 
-<RunSelector bind:open={runSelectorOpen}/>
+<SideNav isOpen={isSideNavOpen} rail={false}>
+    <SideNavItems>
+        <SideNavLink icon={Fade16} text="Overview" href="javascript:void(0)"
+                     on:click={() => selectedPage = test.overview }
+                     isSelected={selectedPage===test.overview}/>
 
+        <SideNavLink icon={Fade16} text="Dashboard" href="javascript:void(0)"
+                     on:click={() => selectedPage = test.dashboard }
+                     isSelected={selectedPage===test.dashboard}/>
+
+        <SideNavLink icon={Fade16} text="Schema" href="javascript:void(0)"
+                     on:click={() => selectedPage = test.schema }
+                     isSelected={selectedPage===test.schema}/>
+
+        <SideNavLink icon={Fade16} text="Link 4" href="javascript:void(0)"
+                     on:click={() => selectedPage = test.runs }
+                     isSelected={selectedPage===test.runs}/>
+
+        <SideNavDivider/>
+        <SideNavLink icon={Archive16}
+                     text="Runs"
+                     href="javascript:void(0)"
+                     on:click={() => selectedPage = test.runs }
+                     isSelected={selectedPage===test.runs}/>
+    </SideNavItems>
+</SideNav>
+
+<style>
+
+</style>
+<Content>
+    <svelte:component this={pages[test.runs]}/>
+</Content>
 <!--<SPAHeader io={sio}/>-->
 
 <!--<TitledContainer title="Capabilities">-->

@@ -15,6 +15,7 @@ export const activeRun = readable(undefined, linkChannel("active_run"));
 export const DAQSchema = readable(undefined, linkChannel("schema"));
 export const capabilities = readable(undefined, linkChannel("capabilities"));
 export const playState = readable(undefined, linkChannel("play_state"));
+export const errorState = readable(undefined, linkChannel("general_error"));
 //sio.on("general_error", (msg) => notifications.danger(msg,1000));
 
 export const connected = readable(false, (set) => {
