@@ -9,14 +9,8 @@
     setInterval(() => {
         fill = fill === "red" ? "darkRed" : "red";
     }, 300);
-
 </script>
-<style>
-    .icon {
-        height: 100%;
-        margin: 0 5px
-    }
-</style>
+
 {#if ($connected)}
     <ConnectionSignal32 style="fill: lawngreen; height: 100%; margin: 0 5px "/>
 {:else}

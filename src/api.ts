@@ -1,4 +1,5 @@
-import {sio} from "./stores";
+import {activeRunId, sio} from "./stores";
+import {get} from "svelte/store";
 
 export function play() {
     sio.emit("play_start");
@@ -31,8 +32,9 @@ export function deleteRun(uuid: string) {
 }
 
 export function activateRun(uuid: string) {
-    console.log(uuid);
-    sio.emit("activate_run", uuid);
+    if (get(activeRunId) as any !== uuid && uuid != null)
+        sio.emit("activate_run", uuid);
+
 }
 
 export function deactivateRun() {

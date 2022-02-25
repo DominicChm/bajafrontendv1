@@ -2,15 +2,16 @@
 
     import {
         Button,
-        Content,
         DataTable,
         DataTableSkeleton,
         OverflowMenu,
-        OverflowMenuItem
+        OverflowMenuItem,
+        Toolbar,
+        ToolbarContent
     } from "carbon-components-svelte";
-    import {activeRun, connected, runs} from "./stores";
-    import IbmCloudVpcEndpoints32 from "carbon-icons-svelte/lib/IbmCloudVpcEndpoints32";
-    import {activateRun} from "./api";
+    import {activeRunId, connected, runs} from "../stores";
+    import {activateRun, deactivateRun} from "../api";
+    import Float from "../Components/Float.svelte";
 
     const headers = [
         {key: "type", value: "Type"},
@@ -18,15 +19,11 @@
         {key: "overflow", empty: true}
     ];
 
-    let selectedRowIds = [$activeRun];
+    $: selectedRowIds = [$activeRunId];
+    $: activateRun(selectedRowIds[0]);
 
-    function arunwrapper(event) {
-        console.log(event)
-        activateRun(event.detail.id);
-    }
 </script>
 
-<p>{$activeRun}</p>
 {#if ($connected)}
     <DataTable
             title="Runs"
@@ -35,11 +32,10 @@
             rows={$runs}
             radio
             bind:selectedRowIds={selectedRowIds}
-            on:click:row={arunwrapper}>
+            on:click:row={(e) => activateRun(e.detail.id)}>
         <svelte:fragment slot="cell" let:cell>
             {#if cell.key === "overflow"}
-                <div style="width: 100%; display: flex; flex-direction: row-reverse; gap:.5rem; align-items: center">
-
+                <Float>
                     <OverflowMenu flipped>
                         <OverflowMenuItem text="Restart"/>
                         <OverflowMenuItem
@@ -48,10 +44,17 @@
                         />
                         <OverflowMenuItem danger text="Stop"/>
                     </OverflowMenu>
-                </div>
-            {:else}{cell.value}{/if}
+                </Float>
+            {:else}
+                {cell.value}
+            {/if}
         </svelte:fragment>
+        <Toolbar>
+            <ToolbarContent>
+                <Button on:click={deactivateRun} kind="secondary">Deactivate</Button>
+            </ToolbarContent>
+        </Toolbar>
     </DataTable>
 {:else}
-    <DataTableSkeleton/>
+    <DataTableSkeleton showToolbar={false}/>
 {/if}
