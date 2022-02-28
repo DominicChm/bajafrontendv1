@@ -10,8 +10,9 @@
         ToolbarContent
     } from "carbon-components-svelte";
     import {activeRunId, connected, runs} from "../stores";
-    import {activateRun, deactivateRun} from "../api";
+    import {activateRun, deactivateRun, deleteRun} from "../api";
     import Float from "../Components/Float.svelte";
+    import TrashCan24 from "carbon-icons-svelte/lib/TrashCan24";
 
     const headers = [
         {key: "type", value: "Type"},
@@ -33,17 +34,15 @@
             radio
             bind:selectedRowIds={selectedRowIds}
             on:click:row={(e) => activateRun(e.detail.id)}>
-        <svelte:fragment slot="cell" let:cell>
+        <svelte:fragment slot="cell" let:cell let:row>
             {#if cell.key === "overflow"}
                 <Float>
-                    <OverflowMenu flipped>
-                        <OverflowMenuItem text="Restart"/>
-                        <OverflowMenuItem
-                                href="https://cloud.ibm.com/docs/loadbalancer-service"
-                                text="API documentation"
-                        />
-                        <OverflowMenuItem danger text="Stop"/>
-                    </OverflowMenu>
+                    {#if (row.type !== "realtime")}
+                        <Button kind="danger-ghost" icon={TrashCan24} on:click={() => deleteRun(row.id)} iconDescription="Delete Run"/>
+                    {/if}
+                    <!--                    <OverflowMenu flipped>-->
+                    <!--                        <OverflowMenuItem danger text="Delete" on:click={() => deleteRun(row.id)}/>-->
+                    <!--                    </OverflowMenu>-->
                 </Float>
             {:else}
                 {cell.value}

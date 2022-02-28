@@ -1,108 +1,149 @@
 <script>
 
-    import TimelinePanel from "./TimelinePanel.svelte";
-    import {onMount} from "svelte";
+    import {createEventDispatcher, onMount} from "svelte";
     import {calculateTicks} from "../ticks";
 
-    let dragging = false;
-    let center = 0;
-    let containerRef;
+    const dispatch = createEventDispatcher();
 
-    let panels = Array.from(new Array(5).keys()); //Create a sequence length 1-N for initial each to not fail.
-    const panelWidth = 1 / (panels.length - 1) * 100;
+    let containerRef;
+    let dragging = false;
+
+    export let center = 0;
+    export let domain = 10;
+
+    export let dataStart = undefined;
+    export let dataEnd = undefined;
+
+    export let dragDisabled = false;
 
     //View of entire block of panels.
-    let blockEnd = 1;
-    let blockStart = 0;
-    let tickSpacing;
+    $: viewStart = center - domain / 2;
+    $: viewEnd = center + domain / 2;
 
     //View of a single panel
-    let panelView;
-    let ticks = [];
+    let ticks;
+    $: ticks = calcTicks(viewStart, viewEnd);
 
-    $: {
+    let scrollable = true;
+    let clientWidth = 100;
+    $: x = genMapper(viewStart, clientWidth, domain);
 
+    $: if (dragging) dispatch("dragstart");
+    $: if (!dragging) dispatch("dragend");
+
+    function handleResize() {
+        clientWidth = containerRef.clientWidth ?? 100;
     }
 
     function handleMousemove(event) {
-        if (dragging) center += event.movementX * 100 / (containerRef.clientWidth ?? 1); //TODO: Convert to percent coords.
+        if (dragging) {
+            center -= event.movementX * domain / (clientWidth);
+            if (dataStart != null) center = Math.max(center, dataStart);
+            if (dataEnd != null) center = Math.min(center, dataEnd);
 
-        if (center > 0) {
-            center -= panelWidth;
-            blockEnd -= panelView;
-            blockStart -= panelView;
-
-            panels.pop();
-            panels = [blockStart, ...panels];
-
-            calcTicks();
         }
 
-        if (center < -panelWidth) {
-            panels.shift();
-            panels = [...panels, blockEnd];
-
-            center += panelWidth;
-            blockEnd += panelView;
-            blockStart += panelView;
-
-            calcTicks();
-        }
+        calcTicks();
     }
-
-    onMount(() => {
-        initView();
-    })
 
     function calcTicks() {
-        ticks = []
-        const [interval, niceMin, niceMax] = calculateTicks(20, blockStart, blockEnd, tickSpacing);
-        for (let i = niceMin; i < niceMax; i += interval) ticks.push(i);
+        let t = []
+        const [interval, niceMin, niceMax] = calculateTicks(10, viewStart, viewEnd);
+        for (let i = niceMin; i < niceMax; i += interval) t.push(i);
+        return t;
     }
 
-    function initView() {
-        panelView = (blockEnd - blockStart) / panels.length;
-        panels = panels.map((_, i) => blockStart + panelView * i);
 
-        console.log(panels);
-        calcTicks();
-
+    function genMapper(viewStart, clientWidth, domain) {
+        return (dataX) => (dataX - viewStart) * clientWidth / (domain || 1);
     }
 
-    function renderPositions() {
-        //if()
-    }
+    onMount(handleResize);
+
+    const wheel = (node, options) => {
+        let {scrollable} = options;
+
+        const handler = e => {
+            if (!scrollable) {
+                e.preventDefault();
+
+                const dy = Math.sign(e.wheelDeltaY);
+                if (dy > 0)
+                    domain /= Math.abs(dy) * 2
+                else if (dy < 0 && domain < 1000000)
+                    domain *= Math.abs(dy) * 2
+
+                calcTicks();
+            }
+        };
+
+        node.addEventListener('wheel', handler, {passive: false});
+
+        return {
+            update(options) {scrollable = options.scrollable;},
+            destroy() {node.removeEventListener('wheel', handler, {passive: false});}
+        };
+    };
+
+
 </script>
 
 <style>
     .root {
         width: 100%;
         height: 100%;
-        background: red;
+        background-color: var(--cds-layer);
         user-select: none;
-        overflow: hidden;
+        padding: .5rem
     }
 
-    .scroller {
+    svg {
+        width: 100%;
         height: 100%;
-        /*background: gray;*/
-        overflow: visible;
-        white-space: nowrap;
     }
 </style>
-<p>{panelView}, {blockStart}, {blockEnd}</p>
-<div class="root"
-     bind:this={containerRef}
-     on:mousemove={handleMousemove}
-     on:mousedown={() => dragging = true}
-     on:mouseup={() => dragging = false}>
-    <div class="scroller" style="transform:translate({center}%); width: 100%">
-        {#each panels as start, index(start)}
-            <TimelinePanel viewStart={start}
-                           viewEnd={start + panelView}
-                           widthPercent={panelWidth}
-                           ticks={ticks}/>
-        {/each}
-    </div>
-</div>
+<!--<p>{viewStart}, {viewEnd}, {dragging}</p>-->
 
+<svelte:window use:wheel={{scrollable}} on:resize={handleResize} on:mouseup={() => dragging = false}
+               on:mousemove={handleMousemove}
+/>
+<div class="root"
+     style="width: 100%; height: 100%">
+    <svg width="100%" height="100%"
+         bind:this={containerRef}
+         on:mousedown={() => {if(!dragDisabled) dragging = true}}
+         on:mouseup={() => dragging = false}
+         on:mouseenter={() => scrollable = false}
+         on:mouseleave={() => scrollable = true}>
+
+
+        {#each ticks as t}
+            <line x1={x(t)} x2={x(t)} y1="0" y2="100%" stroke-width="1" stroke="black"></line>
+            <text x={x(t)} y="100%">{t.toFixed(2)}</text>
+        {/each}
+
+        {#if (dataStart != null && dataStart > viewStart)}
+            <rect x={x(viewStart)} width={x(dataStart) - x(viewStart)} y="0" height="100%" fill="gray"
+                  fill-opacity=".5"/>
+        {/if}
+
+        {#if (dataEnd != null && dataEnd < viewEnd)}
+            <rect x={x(dataEnd)} width={x(viewEnd) - x(dataEnd)} y="0" height="100%" fill="gray"
+                  fill-opacity=".5"/>
+        {/if}
+
+        {#if (dragDisabled)}
+            <rect x="0" width="100%" y="0" height="100%" fill="gray"
+                  fill-opacity=".5"/>
+        {/if}
+
+        <line x1={x(center)} x2={x(center)} y1="0" y2="100%" stroke-width="5" stroke="black"></line>
+
+        <text x={x(center) + 10} y="13px">{center?.toFixed(2)}</text>
+        <text x={x(center) - 10} y="13px" text-anchor="end">{domain?.toFixed(2)}</text>
+
+        <text x={x(viewStart)} y="13px">{viewStart?.toFixed(2)}</text>
+        <text x={x(viewEnd)} y="13px" text-anchor="end">{center?.toFixed(2)}</text>
+    </svg>
+
+</div>

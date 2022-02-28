@@ -12,7 +12,9 @@
     } from "carbon-components-svelte";
     import Archive16 from "carbon-icons-svelte/lib/Archive16";
 
-    import {activeRun, activeRunId, runs, sio} from "./stores";
+    import {activeRun, activeRunId, errorState, runs, sio} from "./stores";
+    import {notifications} from './Components/notifications.js'
+
     import DAQConnectionStatus from "./Icons/DAQConnectionStatus.svelte";
     import RunPage from "./Pages/RunPage.svelte";
     import RealtimeNav from "./RunNavs/RealtimeNav.svelte";
@@ -20,6 +22,8 @@
     import SchemaPage from "./Pages/SchemaPage/SchemaPage.svelte";
     import OverviewPage from "./Pages/OverviewPage.svelte";
     import StoredNav from "./RunNavs/StoredNav.svelte";
+    import DashboardPage from "./Pages/DashboardPage.svelte";
+    import Toast from "./Components/Toast.svelte";
 
     // onMount(() => sio.connect());
     // onDestroy(() => sio.disconnect());
@@ -28,7 +32,7 @@
         runs: RunPage,
         schema: SchemaPage,
         overview: OverviewPage,
-
+        dashboard: DashboardPage,
     }
 
     let isSideNavOpen = false;
@@ -39,19 +43,29 @@
     $: if (!$activeRunId) selectedPageKey = "runs"; else selectedPageKey = "schema";
     $: selectedPage = pages[selectedPageKey] ?? UnkownPage;
 
-    function createModule() {
-        sio.emit("create_module", "brake_pressure", "AA:BB:CC:DD:EE:FF");
-    }
+    //Errors? Keep as console log for now :/
+    errorState.subscribe(value => {
+        console.log(value);
+        // notifications.danger(value, value.length * 50)
+    });
 
-    function handlePlay() {
-        sio.emit("play_start");
-    }
-
-    function handleStopPlay() {
-        sio.emit("play_stop");
-    }
 </script>
+<style>
+    :global(html) {
+        margin: 0;
+        height: 100%;
+        display: flex;
+    }
 
+    :global(body) {
+        flex: 1;
+        margin: 0;
+        display: flex;
+        overflow: hidden;
+    }
+
+
+</style>
 
 <Header company="SAE Baja" platformName="DAQ v0.0.1" bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
@@ -63,7 +77,7 @@
     </HeaderUtilities>
 
 </Header>
-<SideNav bind:isOpen={isSideNavOpen} >
+<SideNav bind:isOpen={isSideNavOpen}>
     <SideNavItems>
         {#if ($activeRun?.type === "realtime")}
             <RealtimeNav bind:selectedPageKey/>
@@ -81,9 +95,9 @@
     </SideNavItems>
 </SideNav>
 
-<style>
 
-</style>
-<Content>
+<Content style="flex: 1;">
     <svelte:component this={selectedPage}/>
 </Content>
+
+<Toast />

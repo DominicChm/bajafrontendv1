@@ -51,3 +51,7 @@ export function niceNum(range: number, round: boolean): number {
 
     return niceFraction * Math.pow(10, exponent);
 }
+
+export function calculateTickArray(maxTicks: number, minPoint: number, maxPoint: number) {
+
+}

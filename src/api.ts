@@ -1,5 +1,6 @@
-import {activeRunId, sio} from "./stores";
+import {activeRunId, DAQSchema, sio} from "./stores";
 import {get} from "svelte/store";
+import {cloneDeep, findIndex} from "lodash";
 
 export function play() {
     sio.emit("play_start");
@@ -7,6 +8,14 @@ export function play() {
 
 export function stop() {
     sio.emit("play_stop");
+}
+
+export function resetPlayback() {
+    sio.emit("play_seek", 0);
+}
+
+export function pause() {
+    sio.emit("play_pause");
 }
 
 export function setFramerate(rate: number) {
@@ -47,4 +56,14 @@ export function createModule(typeName: string) {
 
 export function pushSchema(schema: any) {
     sio.emit("schema_update", schema);
+}
+
+export function applyModuleDefinition(definition: any) {
+    const schema = cloneDeep(get(DAQSchema));
+
+    //Replace definition by ID
+    const i = findIndex(schema.modules, {id: definition.id});
+    schema.modules.splice(i, 1, definition);
+
+    pushSchema(schema);
 }

@@ -10,8 +10,8 @@
         ToolbarMenuItem,
         ToolbarSearch
     } from "carbon-components-svelte";
-    import {DAQSchema} from "../../stores";
-    import {createModule, pushSchema} from "../../api";
+    import {DAQSchema, isRealtime} from "../../stores";
+    import {applyModuleDefinition, createModule, deleteRun, pushSchema} from "../../api";
     import Edit24 from "carbon-icons-svelte/lib/Edit24";
     import Edit16 from "carbon-icons-svelte/lib/Edit16";
 
@@ -38,28 +38,10 @@
         editsMade = false;
     }
 
-    function applyEdits(event) {
-
-        const schema = cloneDeep($DAQSchema);
-        const i = findIndex(schema.modules, {id: event.detail.id});
-
-        schema.modules.splice(i, 1, event.detail);
-
-        console.log(schema);
-
-        pushSchema(schema);
-        editModalOpen = false;
-    }
-
     function deleteSelected() {
-        const schema = cloneDeep($DAQSchema);
+        for (const id of selectedRowIds)
+            deleteRun(id);
 
-        for (const id of selectedRowIds) {
-            const i = findIndex(schema.modules, {id});
-            schema.modules.splice(i, 1);
-        }
-
-        pushSchema(schema);
         selectedRowIds = [];
     }
 
@@ -84,7 +66,7 @@
             rows={$DAQSchema.modules}
             title="Modules"
             description="Modules present in this schema"
-            selectable
+            selectable={$isRealtime}
             bind:selectedRowIds
     >
         <svelte:fragment slot="expanded-row" let:row>
@@ -118,4 +100,4 @@
     <DataTableSkeleton/>
 {/if}
 
-<ModuleDefinitionEditor on:submit={applyEdits} bind:open={editModalOpen} bind:id={editId}/>
+<ModuleDefinitionEditor bind:open={editModalOpen} bind:id={editId}/>
