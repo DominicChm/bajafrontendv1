@@ -11,39 +11,21 @@
         SkipToContent,
     } from "carbon-components-svelte";
     import Archive16 from "carbon-icons-svelte/lib/Archive16";
-
-    import {activeRun, activeRunId, errorState, runs, sio} from "./stores";
-    import {notifications} from './Components/notifications.js'
+    import Router, {location} from 'svelte-spa-router'
+    import {routes} from "./Pages/routes.ts"
+    import {activeRun, errorState} from "./stores";
 
     import DAQConnectionStatus from "./Icons/DAQConnectionStatus.svelte";
-    import RunPage from "./Pages/RunPage.svelte";
-    import RealtimeNav from "./RunNavs/RealtimeNav.svelte";
-    import UnkownPage from "./Pages/UnkownPage.svelte";
-    import SchemaPage from "./Pages/SchemaPage/SchemaPage.svelte";
-    import OverviewPage from "./Pages/OverviewPage.svelte";
-    import StoredNav from "./RunNavs/StoredNav.svelte";
-    import DashboardPage from "./Pages/DashboardPage.svelte";
     import Toast from "./Components/Toast.svelte";
-
-    // onMount(() => sio.connect());
-    // onDestroy(() => sio.disconnect());
-
-    const pages = {
-        runs: RunPage,
-        schema: SchemaPage,
-        overview: OverviewPage,
-        dashboard: DashboardPage,
-    }
+    import RealtimeNav from "./RunNavs/RealtimeNav.svelte";
+    import StoredNav from "./RunNavs/StoredNav.svelte";
+    import {onMount} from "svelte";
 
     let isSideNavOpen = false;
-    let selectedPageKey = "runs";
-    let selectedPage = UnkownPage;
+    onMount(() => {
 
-    // Move current view to overview on run selection.
-    $: if (!$activeRunId) selectedPageKey = "runs"; else selectedPageKey = "schema";
-    $: selectedPage = pages[selectedPageKey] ?? UnkownPage;
-
-    //Errors? Keep as console log for now :/
+    });
+    //Errors? Keep as console log for now :/ TODO: ERRORS.
     errorState.subscribe(value => {
         console.log(value);
         // notifications.danger(value, value.length * 50)
@@ -80,24 +62,22 @@
 <SideNav bind:isOpen={isSideNavOpen}>
     <SideNavItems>
         {#if ($activeRun?.type === "realtime")}
-            <RealtimeNav bind:selectedPageKey/>
+            <RealtimeNav/>
             <SideNavDivider/>
         {:else if ($activeRun?.type === "stored")}
-            <StoredNav bind:selectedPageKey/>
+            <StoredNav/>
             <SideNavDivider/>
         {/if}
-
         <SideNavLink icon={Archive16}
                      text="Runs"
-                     href="javascript:void(0)"
-                     on:click={() => selectedPageKey = "runs" }
-                     isSelected={selectedPageKey==="runs"}/>
+                     href="#/"
+                     isSelected={$location==="/"}/>
     </SideNavItems>
 </SideNav>
 
-
 <Content style="flex: 1;">
-    <svelte:component this={selectedPage}/>
+    <Router {routes}/>
+    <!--    <svelte:component this={selectedPage}/>-->
 </Content>
 
-<Toast />
+<Toast/>

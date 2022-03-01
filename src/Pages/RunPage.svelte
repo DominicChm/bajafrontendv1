@@ -15,6 +15,7 @@
     import TrashCan24 from "carbon-icons-svelte/lib/TrashCan24";
     import {cloneDeep} from "lodash";
     import RecordButton from "../Components/RecordButton.svelte";
+    import {push} from "svelte-spa-router";
 
     let editOpen = false;
     let editId = "";
@@ -25,7 +26,6 @@
     function changesMade() {
         wereChangesMade = true;
     }
-
 
     const headers = [
         {key: "meta.name", value: "Name"},
@@ -42,15 +42,12 @@
         editId = id;
         editCache = cloneDeep($runs?.find(r => r.id === id));
         closeOnEnter = true;
-        console.log(activeRun);
     }
 
     function applyEdits() {
         setRunMetadata(editId, editCache.meta);
         editOpen = false;
     }
-
-    $: console.log($runs);
 
 </script>
 

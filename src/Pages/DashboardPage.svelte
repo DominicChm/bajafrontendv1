@@ -9,7 +9,7 @@
     const id = () => "_" + Math.random().toString(36).substr(2, 9);
     import Reset32 from "carbon-icons-svelte/lib/Reset32";
     import {Button, ComboBox, LocalStorage, Search, MultiSelect} from "carbon-components-svelte";
-    import {DAQSchema} from "../stores";
+    import {activeRun, DAQSchema} from "../stores";
     import {findFreeSpaceForItem} from "svelte-grid/src/utils/item";
     import ModuleDashboard from "../ModuleWidgets/ModuleDashboard.svelte";
 
@@ -82,39 +82,43 @@
     }
 
 </style>
+{#if (!$activeRun)}
+    NO ACTIVE RUN!!!
+{:else}
+    <div class="root">
+        <RunHeader>
+            <svelte:fragment slot="actions">
+                <MultiSelect
+                        spellcheck="false"
+                        filterable
+                        placeholder="Select Shown Modules"
+                        items={selectItems}
+                        bind:selectedIds={shownIds}
+                        on:select={syncSelect}
+                />
+                <Button icon={Reset32} iconDescription="Reset Dashboard" kind="secondary" on:click={resetDash}/>
 
-<div class="root">
-    <RunHeader>
-        <svelte:fragment slot="actions">
-            <MultiSelect
-                    spellcheck="false"
-                    filterable
-                    placeholder="Select Shown Modules"
-                    items={selectItems}
-                    bind:selectedIds={shownIds}
-                    on:select={syncSelect}
-            />
-            <Button icon={Reset32} iconDescription="Reset Dashboard" kind="secondary" on:click={resetDash}/>
+            </svelte:fragment>
+        </RunHeader>
+        <div style="flex: 1; overflow-y: scroll; overflow-x: hidden" bind:this={container}>
+            <Grid bind:items={items} rowHeight={200} let:item let:dataItem {cols} let:index scroller={container}>
 
-        </svelte:fragment>
-    </RunHeader>
-    <div style="flex: 1; overflow-y: scroll; overflow-x: hidden" bind:this={container}>
-        <Grid bind:items={items} rowHeight={200} let:item let:dataItem {cols} let:index scroller={container}>
+                <div class="content">
+                    <ModuleDashboard typename={$DAQSchema?.modules.find(m => m.id === dataItem.id)?.type}
+                                     id={dataItem.id}/>
+                </div>
 
-            <div class="content">
-                <ModuleDashboard typename={$DAQSchema?.modules.find(m => m.id === dataItem.id)?.type} id={dataItem.id}/>
-            </div>
-
-        </Grid>
+            </Grid>
+        </div>
+        <div style="width: 100%; height: 6rem;">
+            <DrivenTimeline/>
+        </div>
     </div>
-    <div style="width: 100%; height: 6rem;">
-        <DrivenTimeline/>
-    </div>
-</div>
 
-<LocalStorage
-        key="dashboard-layout"
-        bind:value={items}
-        bind:this={storage}
-        on:update={onUpdate}
-/>
+    <LocalStorage
+            key="dashboard-layout"
+            bind:value={items}
+            bind:this={storage}
+            on:update={onUpdate}
+    />
+{/if}

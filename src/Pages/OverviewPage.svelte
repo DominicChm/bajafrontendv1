@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
     import DrivenTimeline from "../Components/DrivenTimeline.svelte";
+    import {activeRun} from "../stores";
 </script>
 <style>
     .root {
@@ -8,13 +9,18 @@
         flex-direction: column;
     }
 </style>
-<div class="root">
-    <div style="flex: 1">
-        test
+
+{#if (!$activeRun)}
+    NO ACTIVE RUN!!!
+{:else}
+    <div class="root">
+        <div style="flex: 1">
+            test
+        </div>
+        <div style="width: 100%; height: 6rem;">
+            <DrivenTimeline/>
+        </div>
     </div>
-    <div style="width: 100%; height: 6rem;">
-        <DrivenTimeline/>
-    </div>
-</div>
 
 
+{/if}
