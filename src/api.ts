@@ -67,3 +67,7 @@ export function applyModuleDefinition(definition: any) {
 
     pushSchema(schema);
 }
+
+export function setRunMetadata(id: string, meta: any) {
+    sio.emit("set_run_meta", id, meta);
+}

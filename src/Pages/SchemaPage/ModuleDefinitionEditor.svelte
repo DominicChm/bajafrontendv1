@@ -1,5 +1,5 @@
 <script>
-    import {FormGroup, Modal, TextArea, TextInput} from "carbon-components-svelte";
+    import {Form, FormGroup, Modal, TextArea, TextInput} from "carbon-components-svelte";
     import {createEventDispatcher} from "svelte";
     import {cloneDeep} from "lodash";
     import {DAQSchema} from "../../stores";
@@ -16,6 +16,8 @@
 
     let n = {n: ""};
     let editsMade;
+    let closeOnEnter = true;
+
 
     $: if (open) editsMade = false;
     $: if (!open) cacheInvalid = true;
@@ -30,7 +32,7 @@
 
     function applyEdits() {
         applyModuleDefinition(editCache);
-        open=false;
+        open = false;
     }
 
 
@@ -42,33 +44,38 @@
 <Modal
         bind:open
         modalHeading="Edit Module"
-        primaryButtonText="Confirm"
+        primaryButtonText="Apply"
         secondaryButtonText="Cancel"
         primaryButtonDisabled={!editsMade}
         on:submit={applyEdits}
         on:click:button--secondary={() => open = false}>
     {#if (editCache && id)}
-        <FormGroup>
-            <TextInput
-                    labelText="Name"
-                    bind:value={editCache.name}
-                    on:input={changeMade}/>
-            <TextArea
-                    labelText="Description"
-                    bind:value={editCache.description}
-                    on:input={changeMade}/>
-        </FormGroup>
+        <Form>
+            <FormGroup>
+                <TextInput
+                        labelText="Name"
+                        bind:value={editCache.name}
+                        on:input={changeMade}/>
+                <TextArea
+                        labelText="Description"
+                        bind:value={editCache.description}
+                        on:input={changeMade}
+                        on:focus={() => closeOnEnter = false}
+                        on:blur={() => closeOnEnter = true}
+                />
+            </FormGroup>
 
-        <FormGroup style="display:flex; flex-direction: row; gap: 1rem">
-            <TextInput
-                    labelText="MAC Address"
-                    bind:value={editCache.mac}
-                    on:input={changeMade}/>
-            <TextInput
-                    labelText="Type"
-                    bind:value={editCache.type}
-                    on:input={changeMade}/>
-        </FormGroup>
+            <FormGroup style="display:flex; flex-direction: row; gap: 1rem">
+                <TextInput
+                        labelText="MAC Address"
+                        bind:value={editCache.mac}
+                        on:input={changeMade}/>
+                <TextInput
+                        labelText="Type"
+                        bind:value={editCache.type}
+                        on:input={changeMade}/>
+            </FormGroup>
+        </Form>
 
         {#if (editCache?.config && Object.keys(editCache.config).length > 0)}
             <ModuleConfig

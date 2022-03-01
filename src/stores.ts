@@ -2,7 +2,7 @@ import {derived, readable, Subscriber, writable} from "svelte/store";
 import {io} from "socket.io-client";
 
 
-export let sio = io("http://localhost:3000");
+export let sio = io(`http://${window.location.hostname}:3000`);
 
 function linkChannel(channel: string) {
     return (set: Subscriber<any>) => {
