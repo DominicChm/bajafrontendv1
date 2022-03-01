@@ -65,7 +65,9 @@
             bind:selectedRowIds={selectedRowIds}
             on:click:row={(e) => activateRun(e.detail.id)}>
         <svelte:fragment slot="expanded-row" let:row>
-            {row.meta.description || "No description"}
+            <span style="white-space: pre ; display: block; unicode-bidi: embed">
+                {row.meta.description || "No description"}
+            </span>
         </svelte:fragment>
 
         <svelte:fragment slot="cell" let:cell let:row>
@@ -77,7 +79,7 @@
                             <OverflowMenuItem danger text="Delete" on:click={() => deleteRun(row.id)}/>
                         </OverflowMenu>
                     {:else if (row.type === "realtime")}
-                        <RecordButton/>
+                        <RecordButton id={row.id}/>
                     {/if}
                 </Float>
             {:else}
