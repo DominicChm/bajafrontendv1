@@ -2,7 +2,7 @@
     import "carbon-components-svelte/css/all.css";
     import {
         Content,
-        Header,
+        Header, HeaderGlobalAction,
         HeaderUtilities,
         SideNav,
         SideNavDivider,
@@ -11,15 +11,15 @@
         SkipToContent,
     } from "carbon-components-svelte";
     import Archive16 from "carbon-icons-svelte/lib/Archive16";
+    import Archive24 from "carbon-icons-svelte/lib/Archive24";
     import Router, {location} from 'svelte-spa-router'
     import {routes} from "./Pages/routes.ts"
-    import {activeRun, errorState} from "./stores";
+    import {errorState} from "./stores";
 
     import DAQConnectionStatus from "./Icons/DAQConnectionStatus.svelte";
     import Toast from "./Components/Toast.svelte";
-    import RealtimeNav from "./RunNavs/RealtimeNav.svelte";
-    import StoredNav from "./RunNavs/StoredNav.svelte";
     import {onMount} from "svelte";
+    import PageNav from "./Components/PageNav.svelte";
 
     let isSideNavOpen = false;
     onMount(() => {
@@ -61,13 +61,8 @@
 </Header>
 <SideNav bind:isOpen={isSideNavOpen}>
     <SideNavItems>
-        {#if ($activeRun?.type === "realtime")}
-            <RealtimeNav/>
-            <SideNavDivider/>
-        {:else if ($activeRun?.type === "stored")}
-            <StoredNav/>
-            <SideNavDivider/>
-        {/if}
+        <PageNav/>
+        <SideNavDivider/>
         <SideNavLink icon={Archive16}
                      text="Runs"
                      href="#/"

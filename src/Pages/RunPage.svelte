@@ -49,6 +49,8 @@
         editOpen = false;
     }
 
+    let selectedRowIds;
+
 </script>
 
 {#if ($connected)}

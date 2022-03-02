@@ -6,6 +6,7 @@ The frontend for Cal Poly Baja SAE's DAQ.
 
 - [ ] Refactor to make runs a derived map.
 - [ ] Figure out a more elegant way to do dashboards/configs
+- [ ] Create recordings through a dialog.
 
 ## Possible useful things?
 
