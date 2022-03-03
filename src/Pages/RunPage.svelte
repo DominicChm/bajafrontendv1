@@ -16,6 +16,7 @@
     import {cloneDeep} from "lodash";
     import RecordButton from "../Components/RecordButton.svelte";
     import {push} from "svelte-spa-router";
+    import {config} from "../config";
 
     let editOpen = false;
     let editId = "";
@@ -49,6 +50,13 @@
         editOpen = false;
     }
 
+    function download(fileUrl, fileName) {
+        let a = document.createElement("a");
+        a.href = fileUrl;
+        a.setAttribute("download", fileName);
+        a.click();
+    }
+
     let selectedRowIds;
 
 </script>
@@ -65,6 +73,7 @@
             on:click:row={(e) => activateRun(e.detail.id)}>
         <svelte:fragment slot="expanded-row" let:row>
             <span style="white-space: pre ; display: block; unicode-bidi: embed">
+                {row.id + "\n"}
                 {row.meta.description || "No description"}
             </span>
         </svelte:fragment>
@@ -75,6 +84,8 @@
                     {#if (row.type !== "realtime")}
                         <OverflowMenu flipped>
                             <OverflowMenuItem text="Edit" on:click={() => editRun(row.id)}/>
+                            <OverflowMenuItem text="Download CSV"
+                                              on:click={() => download(`${config.apiUrl}/csv/${row.id}`, row.name + ".csv")}/>
                             <OverflowMenuItem danger text="Delete" on:click={() => deleteRun(row.id)}/>
                         </OverflowMenu>
                     {:else if (row.type === "realtime")}
