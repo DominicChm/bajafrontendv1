@@ -2,7 +2,7 @@
     import "carbon-components-svelte/css/all.css";
     import {
         Content,
-        Header, HeaderGlobalAction,
+        Header, HeaderAction, HeaderGlobalAction, HeaderPanelDivider, HeaderPanelLink, HeaderPanelLinks,
         HeaderUtilities,
         SideNav,
         SideNavDivider,
@@ -20,11 +20,11 @@
     import Toast from "./Components/Toast.svelte";
     import {onMount} from "svelte";
     import PageNav from "./Components/PageNav.svelte";
+    import SidebarRunSelector from "./Components/SidebarRunSelector.svelte";
 
     let isSideNavOpen = false;
-    onMount(() => {
+    let runsOpen = false;
 
-    });
     //Errors? Keep as console log for now :/ TODO: ERRORS.
     errorState.subscribe(value => {
         console.log(value);
@@ -56,6 +56,7 @@
 
     <HeaderUtilities>
         <DAQConnectionStatus/>
+        <SidebarRunSelector/>
     </HeaderUtilities>
 
 </Header>
@@ -72,7 +73,6 @@
 
 <Content style="flex: 1;">
     <Router {routes}/>
-    <!--    <svelte:component this={selectedPage}/>-->
 </Content>
 
 <Toast/>

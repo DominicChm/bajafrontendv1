@@ -11,12 +11,10 @@
         ToolbarSearch
     } from "carbon-components-svelte";
     import {DAQSchema, isRealtime} from "../../stores";
-    import {applyModuleDefinition, createModule, deleteRun, pushSchema} from "../../api";
+    import {createModule, deleteRun} from "../../api";
     import Edit24 from "carbon-icons-svelte/lib/Edit24";
-    import Edit16 from "carbon-icons-svelte/lib/Edit16";
 
     import Float from "../../Components/Float.svelte";
-    import {cloneDeep, findIndex} from "lodash"
     import ModuleDefinitionEditor from "./ModuleDefinitionEditor.svelte";
 
     let editModalOpen = false;
