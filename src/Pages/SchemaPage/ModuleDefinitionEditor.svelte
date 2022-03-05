@@ -48,40 +48,19 @@
         secondaryButtonText="Cancel"
         primaryButtonDisabled={!editsMade}
         on:submit={applyEdits}
-        on:click:button--secondary={() => open = false}>
+        on:click:button--secondary={() => open = false}
+        hasScrollingContent>
     {#if (editCache && id)}
-        <Form>
-            <FormGroup>
-                <TextInput
-                        labelText="Name"
-                        bind:value={editCache.name}
-                        on:input={changeMade}/>
-                <TextArea
-                        labelText="Description"
-                        bind:value={editCache.description}
-                        on:input={changeMade}
-                        on:focus={() => closeOnEnter = false}
-                        on:blur={() => closeOnEnter = true}
-                />
-            </FormGroup>
 
-            <FormGroup style="display:flex; flex-direction: row; gap: 1rem">
-                <TextInput
-                        labelText="MAC Address"
-                        bind:value={editCache.mac}
-                        on:input={changeMade}/>
-                <TextInput
-                        labelText="Type"
-                        bind:value={editCache.type}
-                        on:input={changeMade}/>
-            </FormGroup>
-        </Form>
 
         {#if (editCache?.config && Object.keys(editCache.config).length > 0)}
             <ModuleConfig
                     typename={editCache.type}
                     bind:config={editCache.config}
-                    on:input={changeMade}/>
+                    on:input={changeMade}
+                    on:focus={() => closeOnEnter = false}
+                    on:blur={() => closeOnEnter = true}
+            />
         {/if}
     {:else }
         <p>No data. This module might have been deleted.</p>
