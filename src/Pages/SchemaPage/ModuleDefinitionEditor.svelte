@@ -49,14 +49,13 @@
         primaryButtonDisabled={!editsMade}
         on:submit={applyEdits}
         on:click:button--secondary={() => open = false}
-        hasScrollingContent>
+        hasScrollingContent
+        shouldSubmitOnEnter={closeOnEnter}>
     {#if (editCache && id)}
-
-
         {#if (editCache?.config && Object.keys(editCache.config).length > 0)}
             <ModuleConfig
                     typename={editCache.type}
-                    bind:config={editCache.config}
+                    bind:definition={editCache}
                     on:input={changeMade}
                     on:focus={() => closeOnEnter = false}
                     on:blur={() => closeOnEnter = true}

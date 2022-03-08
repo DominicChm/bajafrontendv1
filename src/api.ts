@@ -68,6 +68,18 @@ export function applyModuleDefinition(definition: any) {
     pushSchema(schema);
 }
 
+export function deleteModule(uuids: string[]) {
+    const schema = cloneDeep(get(DAQSchema));
+
+    //Replace definition by ID
+    for (const uuid of uuids) {
+        const i = findIndex(schema.modules, {id: uuid});
+        schema.modules.splice(i, 1);
+    }
+
+    pushSchema(schema);
+}
+
 export function setRunMetadata(id: string, meta: any) {
     sio.emit("set_run_meta", id, meta);
 }

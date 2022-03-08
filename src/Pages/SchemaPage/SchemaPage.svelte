@@ -2,7 +2,7 @@
     import {
         Button,
         DataTable,
-        DataTableSkeleton,
+        DataTableSkeleton, Form, FormGroup, NumberInput,
         Toolbar,
         ToolbarBatchActions,
         ToolbarContent,
@@ -11,16 +11,22 @@
         ToolbarSearch
     } from "carbon-components-svelte";
     import {DAQSchema, isRealtime} from "../../stores";
-    import {createModule, deleteRun} from "../../api";
+    import {createModule, deleteModule, deleteRun, pushSchema} from "../../api";
     import Edit24 from "carbon-icons-svelte/lib/Edit24";
 
     import Float from "../../Components/Float.svelte";
     import ModuleDefinitionEditor from "./ModuleDefinitionEditor.svelte";
+    import {cloneDeep} from "lodash";
 
     let editModalOpen = false;
     let editId: string | undefined;
     let editsMade = false;
     let selectedRowIds = [];
+    let frameIntervalValue = 0;
+    let frameIntervalEdited = false;
+
+    $: console.log(frameIntervalValue);
+    $: if (!frameIntervalEdited) frameIntervalValue = (1000 / ($DAQSchema?.frameInterval ?? 1)) | 0
 
     const headers = [
         {key: "name", value: "Name"},
@@ -37,26 +43,41 @@
     }
 
     function deleteSelected() {
-        for (const id of selectedRowIds)
-            deleteRun(id);
+        deleteModule(selectedRowIds);
 
         selectedRowIds = [];
     }
 
+    function onFrameIntervalInput(e) {
+        frameIntervalEdited = true;
+    }
+
+    function applyFrameInterval() {
+        frameIntervalEdited = false;
+        let s = cloneDeep($DAQSchema);
+        s.frameInterval = (1000 / frameIntervalValue) | 0;
+        pushSchema(s);
+    }
+
 </script>
-<!--<InlineNotification-->
-<!--        lowContrast-->
-<!--        kind="warning"-->
-<!--        title="Schema Updated"-->
-<!--        subtitle="While you were editing, the schema was updated by someone else."-->
-<!--        style="width: 100%"/>-->
+
 
 {#if ($DAQSchema)}
+    <h1>{$DAQSchema.name}</h1>
+    <Form>
+        <FormGroup style="display: flex; flex-direction: row; align-items: center; gap: 1rem">
+            <NumberInput
+                    on:input={onFrameIntervalInput}
 
-    <h1>{$DAQSchema.name}
-        <!--TODO: ADD ABILITY TO EDIT DAQ SCHEMA NAME/FRAMERATE/ ETC-->
-        <!--        <Button icon={Edit16} iconDescription="Edit Name" size="small" kind="ghost"/>-->
-    </h1>
+                    label="Framerate"
+                    bind:value={frameIntervalValue}
+                    helperText={"How often a data \"frame\" is captured, in hz"}
+            />
+            <Button on:click={applyFrameInterval} disabled={!frameIntervalEdited}>
+                Apply
+            </Button>
+        </FormGroup>
+    </Form>
 
     <DataTable
             expandable
@@ -68,14 +89,20 @@
             bind:selectedRowIds
     >
         <svelte:fragment slot="expanded-row" let:row>
-            {row.description || "No description"}
+            <span style="white-space: pre ; display: block; unicode-bidi: embed">
+                {row.description || "No description"}
+            </span>
         </svelte:fragment>
 
         <svelte:fragment slot="cell" let:cell let:row>
             {#if cell.key === "overflow"}
                 <Float>
-                    <Button icon={Edit24} iconDescription="Edit Module" tooltipPosition="left" tooltipAlignment="start"
-                            kind="ghost" on:click={() => openEditModal(row.id)}/>
+                    <Button icon={Edit24}
+                            iconDescription="Edit Module"
+                            tooltipPosition="left"
+                            tooltipAlignment="start"
+                            kind="ghost"
+                            on:click={() => openEditModal(row.id)}/>
                 </Float>
             {:else}{cell.value}{/if}
         </svelte:fragment>
